@@ -3,6 +3,95 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--namespace = 所需实现的接⼝全限定名-->
 <mapper namespace="com.cc.mapper.BookDAO">
+    <sql id="common">
+        id,
+        book_code,
+        book_name,
+        type_name,
+        book_type,
+        book_author,
+        publish_press,
+        publish_date,
+        is_borrow,
+        createdByUser,
+        createtion,
+        last_updatetime
+    </sql>
+    <sql id="common_where">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="id">
+                id=#{id}
+            </if>
+            <if test="book_code">
+               and book_code=#{book_code}
+            </if>
+            <if test="book_name">
+               and book_name=#{book_name}
+            </if>
+            <if test="book_type">
+               and book_type=#{book_type}
+            </if>
+            <if test="book_author">
+               and book_author=#{book_author}
+            </if>
+            <if test="publish_press">
+               and publish_press=#{publish_press}
+            </if>
+            <if test="is_borrow">
+               and is_borrow=#{is_borrow}
+            </if>
+            <if test="createdByUser">
+               and createdByUser=#{createdByUser}
+            </if>
 
+        </trim>
+    </sql>
+    <sql id="common_set">
+        <trim prefix="set" suffixOverrides=",">
+            <if test="id">
+                id=#{id},
+            </if>
+            <if test="book_code">
+                book_code=#{book_code},
+            </if>
+            <if test="book_name">
+                book_name=#{book_name},
+            </if>
+            <if test="type_name">
+                type_name=#{type_name},
+            </if>
+            <if test="book_type">
+                book_type=#{book_type},
+            </if>
+            <if test="book_author">
+                book_author=#{book_author},
+            </if>
+            <if test="publish_press">
+                publish_press=#{publish_press},
+            </if>
+            <if test="is_borrow">
+                is_borrow=#{is_borrow},
+            </if>
+            <if test="publish_date">
+                publish_date=#{publish_date},
+            </if>
+            <if test="createdByUser">
+                createdByUser=#{createdByUser},
+            </if>
+            <if test="createtion">
+                createtion=#{createtion},
+            </if>
+            <if test="last_updatetime">
+                last_updatetime=#{last_updatetime},
+            </if>
+            
+        </trim>
+    </sql>
+    <select id="getT" parameterType="int" resultType="com.cc.entity.Book">
+        select
+        <include refid="common"></include>
+        from book where
+        id=#{id}
+    </select>
 
 </mapper>

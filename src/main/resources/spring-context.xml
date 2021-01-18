@@ -45,7 +45,7 @@
         <!-- 注⼊dao-mapper⽂件信息 ,如果映射⽂件和dao接⼝ 同包且同名，则此配置可省略-->
         <property name="mapperLocations">
             <list>
-                <value>classpath:mapper/user.xml</value>
+                <value>classpath:mapper/*.xml</value>
             </list>
         </property>
         <!-- 为 dao-mapper⽂件中的实体 定义缺省包路径如：<select id="queryAll" resultType="User"> 中 User类可以不定义包-->
