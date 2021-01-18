@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * @author: jinjinwen
  * @description: 实体类
@@ -20,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class User {
-    @JsonProperty("t_username")
+   /* @JsonProperty("t_username")
     private  String username;
     @JsonIgnore
     private  String password;
@@ -28,5 +30,13 @@ public class User {
     private  String phone;
     @JsonSerialize(using = JackSerializer.class)
     private  String address;
-    private  Integer userId;
+    private  Integer userId;*/
+    private Integer id;
+    private String user_code;
+    @JsonIgnore //忽略
+    private String password;
+    private String email;
+    private Integer gender;
+    private Date register_time;
+    private Date last_logintime;
 }
