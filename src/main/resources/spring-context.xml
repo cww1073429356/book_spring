@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/aop
+                            http://www.springframework.org/schema/aop/spring-aop.xsd
+                            http://www.springframework.org/schema/context
+                            http://www.springframework.org/schema/context/spring-context.xsd
+                            http://www.springframework.org/schema/tx
+		                    http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+    <!--配置⽂件参数化（参数占位符）-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <context:component-scan base-package="com.cc" use-default-filters="true">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!--数据库配置-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!--基本配置-->
+        <property name="driverClassName" value="${jdbc.driverClass}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!-- 配置初始化⼤⼩、最⼩、最⼤ -->
+        <property name="initialSize" value="${jdbc.init}"/>
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000"/>
+        <!-- 配置间隔多久才进⾏⼀次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <!-- 配置⼀个连接在池中最⼩⽣存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+    </bean>
+
+
+    <!--SqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 注⼊连接池 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 注⼊dao-mapper⽂件信息 ,如果映射⽂件和dao接⼝ 同包且同名，则此配置可省略-->
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:mapper/user.xml</value>
+            </list>
+        </property>
+        <!-- 为 dao-mapper⽂件中的实体 定义缺省包路径如：<select id="queryAll" resultType="User"> 中 User类可以不定义包-->
+        <!--        <property name="typeAliasesPackage" value="com.java.cc.entity"></property>-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+
+            </array>
+        </property>
+    </bean>
+
+
+    <!-- mapperScannerConfigurer -->
+    <bean id="mapperScannerConfigurer9"
+          class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- dao接⼝所在的包 如果有多个包，可以⽤逗号或分号分隔<property name="basePackage" value="com.a.dao,com.b.dao"></property>-->
+        <property name="basePackage" value="com.cc.mapper"></property>
+        <!-- 如果⼯⼚中只有⼀个SqlSessionFactory的bean，此配置可省略 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory">
+        </property>
+    </bean>
+
+
+    <bean id="User" class="com.cc.entity.User"></bean>
+
+    <bean id="tx" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <tx:annotation-driven transaction-manager="tx" proxy-target-class="true"/>
+
+
+    <!-- 1：定义任务的bean ，这⾥使⽤JobDetailFactoryBean,也可以使⽤
+            MethodInvokingJobDetailFactoryBean ，配置类似-->
+    <bean name="my_job_detail"
+          class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <!-- 指定job的名称 -->
+        <property name="name" value="myjob"/>
+        <!-- 指定job的分组 -->
+        <property name="group" value="myjob_group"/>
+        <!-- 指定具体的job类 -->
+        <property name="jobClass" value="com.cc.quartz.MyJob"/>
+    </bean>
+
+    <!-- 2：定义触发器的bean，定义⼀个Cron的Trigger，⼀个触发器只能和⼀个任务进⾏绑定 -->
+    <bean id="cronTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <!-- 指定Trigger的名称 -->
+        <property name="name" value="trigger1"/>
+        <!-- 指定Trigger的名称 -->
+        <property name="group" value="trigger_group1"/>
+        <!-- 指定Tirgger绑定的JobDetail -->
+        <property name="jobDetail" ref="my_job_detail"/>
+        <!-- 指定Cron 的表达式 ，当前是每隔5s运⾏⼀次 -->
+        <property name="cronExpression" value="*/2 * * * * ?"/>
+    </bean>
+
+    <!-- 3.定义调度器，并将Trigger注册到调度器中 -->
+    <bean id="scheduler"
+          class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="cronTrigger"/>
+            </list>
+        </property>
+        <!-- 添加 quartz 配置，如下两种⽅式均可 -->
+        <!--<property name="configLocation"
+        value="classpath:quartz.properties"></property>-->
+        <property name="quartzProperties">
+            <value>
+                # 指定调度器名称，实际类型为：QuartzScheduler
+                org.quartz.scheduler.instanceName = MyScheduler
+                # 指定连接池
+                org.quartz.threadPool.class = org.quartz.simpl.SimpleThreadPool
+                # 连接池线程数量
+                org.quartz.threadPool.threadCount = 11
+                # 优先级
+                org.quartz.threadPool.threadPriority = 5
+                # 不持久化job
+                org.quartz.jobStore.class = org.quartz.simpl.RAMJobStore
+            </value>
+        </property>
+    </bean>
+
+
+</beans>
+
