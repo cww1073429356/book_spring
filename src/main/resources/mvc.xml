@@ -26,6 +26,14 @@ http://www.springframework.org/schema/mvc/spring-mvc.xsd">
         <!-- 后缀 -->
         <property name="suffix" value=".jsp"></property>
     </bean>
-<!--    <mvc:default-servlet-handler/>-->
-    <mvc:resources mapping="/html/**" location="/html/"></mvc:resources>
+    <mvc:default-servlet-handler/>
+<!--    <mvc:resources mapping="/html/**" location="/html/"></mvc:resources>-->
+    <mvc:interceptors> <mvc:interceptor> <mvc:mapping path="/inter/test1"/>
+        <mvc:mapping path="/book/**"/>
+<!--        <mvc:mapping path="/inter/test*"/> -->
+<!--        <mvc:mapping path="/inter/**"/> -->
+<!--        <mvc:exclude-mapping path="/inter/a/**"/> -->
+        <bean class="com.cc.interceptor.MyInterceptor"></bean> <!--拦截器类-->
+    </mvc:interceptor>
+    </mvc:interceptors>
 </beans>

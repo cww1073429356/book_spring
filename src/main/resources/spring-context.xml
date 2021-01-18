@@ -77,6 +77,8 @@
 
 
     <bean id="User" class="com.cc.entity.User"></bean>
+    <bean id="Page" class="com.cc.entity.Page"></bean>
+    <bean id="Book" class="com.cc.entity.Book"></bean>
 
     <bean id="tx" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"></property>
@@ -114,7 +116,8 @@
           class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <ref bean="cronTrigger"/>
+                <!--开启-->
+                <!--<ref bean="cronTrigger"/>-->
             </list>
         </property>
         <!-- 添加 quartz 配置，如下两种⽅式均可 -->
